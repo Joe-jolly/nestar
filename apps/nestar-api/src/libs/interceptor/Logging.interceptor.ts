@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
-import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -29,6 +29,7 @@ export class LoggingInterceptor implements NestInterceptor {
                 }),
             );
         }
+        return of(null);
     }
 
     private stringify(context: ExecutionContext): string {
