@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
-import { AgentPropertiesInquiry, PISearch, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
+import { AgentPropertiesInquiry, AllPropertiesInquiry, PISearch, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -172,6 +172,35 @@ export class PropertyService {
 			propertyStatus: propertyStatus ?? { $ne: PropertyStatus.DELETE },
 		};
 		const sortFinal = { [sort ?? 'createdAt']: direction ?? Direction.DESC };
+
+		const result = await this.propertyModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sortFinal },
+				{
+					$facet: {
+						list: [{ $skip: page - 1 }, { $limit: limit }, lookupMember, { $unwind: '$memberData' }],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+    }
+    
+    /** ADMIN **/
+
+    public async getAllPropertiesbyAdmin(input: AllPropertiesInquiry): Promise<Properties> {
+		const { page, limit, sort, direction, search } = input;
+		const { propertyStatus, propertyLocationList } = search;
+
+		const match: T = {};
+		const sortFinal = { [sort ?? 'createdAt']: direction ?? Direction.DESC };
+
+		if (propertyStatus) match.propertyStatus = propertyStatus;
+		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
 
 		const result = await this.propertyModel
 			.aggregate([
