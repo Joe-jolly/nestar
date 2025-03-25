@@ -86,7 +86,7 @@ export class PropertyResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Properties> {
 		console.log('Query: getAllPropertiesbyAdmin');
-		return await this.propertyService.getAllPropertiesbyAdmin(input);
+		return await this.propertyService.getAllPropertiesByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
