@@ -20,7 +20,6 @@ export class PropertyService {
         @InjectModel("Property") private readonly propertyModel: Model<Property>,
             private memberService: MemberService,
             private viewService: ViewService
-            // private authService: AuthService,
     ) { }
     
     public async createProperty(input: PropertyInput): Promise<Property> { 
@@ -38,7 +37,7 @@ export class PropertyService {
         }
     }
 
-    public async getProperty(memberId: ObjectId | null, propertyId: ObjectId): Promise<Property> {
+    public async getProperty(memberId: ObjectId | null, propertyId: ObjectId ): Promise<Property> {
 		const search: T = {
 			_id: propertyId,
 			propertyStatus: PropertyStatus.ACTIVE,
@@ -78,8 +77,8 @@ export class PropertyService {
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.SOLD) soldAt = new Date();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = new Date();
+		if (propertyStatus === PropertyStatus.SOLD) input.soldAt = moment().toDate();
+		else if (propertyStatus === PropertyStatus.DELETE) input.deletedAt = moment().toDate();
 
         const result = await this.propertyModel
             .findOneAndUpdate(search, input, { new: true })
