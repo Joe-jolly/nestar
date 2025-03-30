@@ -62,14 +62,7 @@ export class PropertyService {
 		return targetProperty;
 	}
 
-	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
-		const { _id, targetKey, modifier } = input;
-		return (await this.propertyModel
-			.findByIdAndUpdate({ _id }, { $inc: { [targetKey]: modifier } }, { new: true })
-			.exec()) as unknown as Property;
-    }
-    
-    public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
+	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
 		let { propertyStatus, soldAt, deletedAt } = input;
 		const search: T = {
 			_id: input._id,
@@ -252,4 +245,14 @@ export class PropertyService {
 
 		return result;
 	}
+
+	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
+		const { _id, targetKey, modifier } = input;
+		return (await this.propertyModel
+			.findByIdAndUpdate(
+				_id,
+				{ $inc: { [targetKey]: modifier } },
+				{ new: true })
+			.exec()) as unknown as Property;
+    }
 }
