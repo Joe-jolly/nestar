@@ -141,7 +141,7 @@ export class MemberService {
             likeGroup: LikeGroup.MEMBER,
         };
         
-        // LIKE TOGGLE VIA lIKE MODULES
+        // LIKE TOGGLE process
         const modifier: number = await this.LikeService.toggleLike(input);
         const result = await this.memberStateEditor({
             _id: memberId,

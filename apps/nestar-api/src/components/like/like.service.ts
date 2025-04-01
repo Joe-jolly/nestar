@@ -13,7 +13,7 @@ export class LikeService {
     ) { }
     
     public async toggleLike(input: LikeInput): Promise<number> {
-        const search: T = { memberId: input.memberId, likeRefId: input.likeRefId },
+        const search: T = { memberId: input.memberId, likeRefId: input.likeRefId, likeGroup: input.likeGroup },
             exist = await this.likeModel.findOne(search).exec();
         let modifier = 1;
 
