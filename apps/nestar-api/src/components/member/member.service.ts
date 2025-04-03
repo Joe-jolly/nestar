@@ -20,7 +20,7 @@ export class MemberService {
         @InjectModel("Member") private readonly memberModel: Model<Member>,
         private authService: AuthService,
         private viewService: ViewService,
-        private LikeService: LikeService,
+        private likeService: LikeService,
     ) { }
     
     public async signup(input: MemberInput): Promise<Member> {
@@ -92,7 +92,8 @@ export class MemberService {
 				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 }}).exec();
 				targetMember.memberViews++;
 			}
-            // meLiked
+            const likeInput: LikeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER };
+            targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput); // meLiked
             // meFollowed
         }
 
@@ -142,7 +143,7 @@ export class MemberService {
         };
         
         // LIKE TOGGLE process
-        const modifier: number = await this.LikeService.toggleLike(input);
+        const modifier: number = await this.likeService.toggleLike(input);
         const result = await this.memberStateEditor({
             _id: memberId,
             targetKey: 'memberLikes',
