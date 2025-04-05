@@ -33,7 +33,10 @@ export class FollowService {
 
 	private async registerSubscription(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
 		try {
-			return await this.followModel.create({ followingId: followingId, followerId: followerId });
+			return await this.followModel.create({
+				followingId: followingId,
+				followerId: followerId,
+			});
 		} catch (err) {
 			console.log('Error, Service.model', err);
 			throw new BadRequestException(Message.CREATE_FAILED);
@@ -44,7 +47,10 @@ export class FollowService {
 		const targetMember = await this.memberService.getMember(null, followingId);
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-		const result = await this.followModel.findOneAndDelete({ followingId: followingId, followerId: followerId });
+		const result = await this.followModel.findOneAndDelete({
+			followingId: followingId,
+			followerId: followerId,
+		});
 		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		await this.memberService.memberStateEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: -1 });
