@@ -1,4 +1,5 @@
 import { ObjectId } from "bson";
+import { T } from '../libs/types/common';
 
 export const availableAgentsSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMembersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
@@ -29,6 +30,39 @@ export const availableCommentSorts = ['createdAt', 'updatedAt'];
 export const shapeIntoMongoObjectId = (target: any) => {
     return typeof target === 'string' ? new ObjectId(target) : target;
 };
+
+export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => { 
+	return {
+		$lookup: {
+			from: 'likes',
+			let: {
+				localLikeRefId: targetRefId,
+				localMemberId: memberId,
+				localMyfavorite: true,
+			},
+			pipeline: [
+				{
+					$match: {
+						$expr: {
+							$and: [
+								{ $eq: ['$likeRefId', '$$localLikeRefId'] },
+								{ $eq: ['$memberId', '$$localMemberId'] },
+							],
+						},
+					},
+				}, {
+					$project: {
+						_id: 0,
+						memberId: 1,
+						likeRefId: 1,
+						myFavorite: '$$localMyfavorite',
+					},
+				}
+			],
+			as: 'meLiked',
+		},
+	}
+}
 
 export const lookupMember = {
 	$lookup: {
