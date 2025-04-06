@@ -1,5 +1,5 @@
 import { ObjectId } from "bson";
-import { T } from '../libs/types/common';
+import { T } from './types/common';
 
 export const availableAgentsSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMembersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
@@ -31,7 +31,7 @@ export const shapeIntoMongoObjectId = (target: any) => {
     return typeof target === 'string' ? new ObjectId(target) : target;
 };
 
-export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => { 
+export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
 	return {
 		$lookup: {
 			from: 'likes',
@@ -62,6 +62,45 @@ export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id')
 			as: 'meLiked',
 		},
 	}
+};
+
+interface LookupAuthMemberFollowed {
+	followerId: T;
+	followingId: string;
+}
+export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) =>{ 
+	const { followerId, followingId } = input;
+	return {
+		$lookup: {
+			from: 'follows',
+			let: {
+				localFollowerId: followerId,
+				localFollowingId: followingId,
+				localMyfavorite: true,
+			},
+			pipeline: [
+				{
+					$match: {
+						$expr: {
+							$and: [
+								{ $eq: ['$followerId', '$$localFollowerId'] },
+								{ $eq: ['$followingId', '$$localFollowingId'] },
+							],
+						},
+					},
+				},
+				{
+					$project: {
+						_id: 0,
+						followerId: 1,
+						followingId: 1,
+						myFollowing: '$$localMyfavorite',
+					},
+				}
+			],
+			as: 'meFollowed',
+		},
+	}
 }
 
 export const lookupMember = {
@@ -88,5 +127,14 @@ export const lookupFollowerData = {
 		localField: 'followerId',
 		foreignField: '_id',
 		as: 'followerData',
+	},
+};
+
+export const lookupFavorite = {
+	$lookup: {
+		from: 'members',
+		localField: 'favoriteProperty.memberId',
+		foreignField: '_id',
+		as: 'favoriteProperty.memberData',
 	},
 };
