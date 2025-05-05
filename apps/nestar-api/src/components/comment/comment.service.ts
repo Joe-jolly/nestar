@@ -72,7 +72,7 @@ export class CommentService {
         },
 			input,
 			{ new: true },
-		);
+		).exec(); // Find and update the comment based on the provided ID and member ID
 
         if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 		return result;
@@ -108,8 +108,8 @@ export class CommentService {
     
     /** ADMIN **/
 
-	public async removeCommentByAdmin(commentId: ObjectId): Promise<Comment> {
-		const result = await this.commentModel.findByIdAndDelete(commentId);
+	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
+		const result = await this.commentModel.findByIdAndDelete(input).exec(); // Find and delete the comment based on the provided ID
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 		return result;
 	}

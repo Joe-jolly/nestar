@@ -70,6 +70,7 @@ export class PropertyService {
 			targetProperty.meLiked = await this.likeService.checkLikeExistence(likeInput); // meLiked
 		}
 
+		//@ts-ignore
 		targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
 		return targetProperty;
 	}
